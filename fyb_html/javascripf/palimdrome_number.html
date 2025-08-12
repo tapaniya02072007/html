@@ -1,0 +1,21 @@
+<html>
+<script>
+	let no1=parseInt(prompt("enter any no:"));
+	let tmp=no1;
+	let result=0;
+	while(no1>0)
+	{
+		rem=no1%10;
+		result=result*10+rem;
+		no1=Math.floor(no1/10);
+	}
+	if(tmp==result)
+	{
+		document.write("number is palindrome");
+	}
+	else
+	{
+		document.write("number is not palindrome");
+	}
+</script>
+</html>

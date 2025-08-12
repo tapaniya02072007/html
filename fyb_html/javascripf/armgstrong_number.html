@@ -1,0 +1,21 @@
+<html>
+<script type="text/javascript">
+	let no1=parseInt(prompt("enter any no:"));
+	let tmp=no1;
+	let result=0
+	while(no1>0)
+	{
+		rem=no1%10;
+		result=result+rem*rem*rem;
+		no1=Math.floor(no1/10);
+	}
+	if(tmp==result) 
+	{
+		document.write("number is armgstrong");
+	}
+	else
+	{
+		document.write("number is not armgstrong");
+	}
+</script>
+</html>

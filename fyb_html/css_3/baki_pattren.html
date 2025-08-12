@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+	<script src="https://bernii.github.io/gauge.js/dist/gauge.min.js"></script>
+<style>
+*{
+	margin:0;
+	padding:0;
+ }
+ #foo
+ {
+	height:200px;
+	width:400px;
+ }
+ .wrap 
+ {
+	position:absolute;
+	top:210px;
+	left:50px;
+ }
+ .zero
+ {
+	position:absolute;
+	top:165px;
+	left:80px;
+ }
+ .twohundred
+ {
+	position:absolute;
+	top:165px;
+	left:200px;
+ }
+ 
+</style>
+</head>
+<body>
+	<canvas id="foo"></canvas>
+	<div class="zero">0</div>
+	<div class="two hundred">200</div>
+	<div class="wrap">
+		<button onclick="chamar()"> try </button>
+		<input type="text" id="campo">
+		insert a number 0~200
+	</div>
+<script>	
+	var opts
+	{
+	lines:12,
+	angle:0.00,
+	linewidth:0.44,
+	pointer:{
+				length:0.5,
+				strokewidth:0.035,
+				color:'red'
+			},
+			limitmax:false,
+			colorstart:'blue',
+			colorstop:'#8FC0DA',
+			strokecolor:'#E0E0E0',
+			generategradient:true
+	};
+	var targer=document.
+		getelementbyid('foo');
+	var gauge=new gauge(target).
+	    setoptions(opts);
+	gauge.maxvalue=200;
+	gauge.animationspeed=32;
+	function chamar(valor)
+	{
+		valor=document;
+	}
+</body>
+</html>
