@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simple Car Game</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #333; overflow: hidden; font-family: Arial, sans-serif; }
+    #gameArea {
+      position: relative;
+      width: 400px;
+      height: 600px;
+      margin: 20px auto;
+      background: #555;
+      border: 4px solid #fff;
+      overflow: hidden;
+    }
+    .car {
+      position: absolute;
+      width: 50px;
+      height: 100px;
+      background: red;
+      bottom: 10px;
+      left: 175px;
+      border-radius: 10px;
+    }
+    .enemy {
+      position: absolute;
+      width: 50px;
+      height: 100px;
+      background: black;
+      top: -120px;
+      border-radius: 10px;
+    }
+    .roadLine {
+      position: absolute;
+      width: 10px;
+      height: 60px;
+      background: white;
+      left: 195px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="gameArea">
+  <div class="car" id="player"></div>
+</div>
+
+<script>
+  const gameArea = document.getElementById('gameArea');
+  const player = document.getElementById('player');
+
+  let playerX = 175;
+  const speed = 5;
+  let gameInterval;
+  let keys = {};
+
+  document.addEventListener('keydown', (e) => {
+    keys[e.key] = true;
+  });
+
+  document.addEventListener('keyup', (e) => {
+    keys[e.key] = false;
+  });
+
+  function moveLines() {
+    let lines = document.querySelectorAll('.roadLine');
+    lines.forEach(line => {
+      let top = parseInt(line.style.top);
+      top += 5;
+      if (top > 600) {
+        top = -60;
+      }
+      line.style.top = top + 'px';
+    });
+  }
+
+  function createLines() {
+    for (let i = 0; i < 5; i++) {
+      let line = document.createElement('div');
+      line.classList.add('roadLine');
+      line.style.top = (i * 120) + 'px';
+      gameArea.appendChild(line);
+    }
+  }
+
+  function createEnemy() {
+    let enemy = document.createElement('div');
+    enemy.classList.add('enemy');
+    enemy.style.left = Math.floor(Math.random() * 3) * 130 + 'px';
+    enemy.style.top = '-120px';
+    gameArea.appendChild(enemy);
+  }
+
+  function moveEnemies() {
+    let enemies = document.querySelectorAll('.enemy');
+    enemies.forEach(enemy => {
+      let top = parseInt(enemy.style.top);
+      top += 6;
+      enemy.style.top = top + 'px';
+
+      if (top > 600) {
+        enemy.remove();
+        createEnemy();
+      }
+
+      // Collision detection
+      if (isCollide(player, enemy)) {
+        endGame();
+      }
+    });
+  }
+
+  function isCollide(a, b) {
+    let aRect = a.getBoundingClientRect();
+    let bRect = b.getBoundingClientRect();
+
+    return !(
+      aRect.bottom < bRect.top ||
+      aRect.top > bRect.bottom ||
+      aRect.right < bRect.left ||
+      aRect.left > bRect.right
+    );
+  }
+
+  function gameLoop() {
+    if (keys['ArrowLeft'] && playerX > 0) {
+      playerX -= speed;
+    }
+    if (keys['ArrowRight'] && playerX < 350) {
+      playerX += speed;
+    }
+    player.style.left = playerX + 'px';
+
+    moveLines();
+    moveEnemies();
+  }
+
+  function startGame() {
+    createLines();
+    createEnemy();
+    createEnemy();
+    gameInterval = setInterval(gameLoop, 20);
+  }
+
+  function endGame() {
+    clearInterval(gameInterval);
+    alert('Game Over!');
+    window.location.reload();
+  }
+
+  startGame();
+</script>
+
+</body>
+</html>
