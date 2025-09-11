@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bandhuk Wala Game</title>
+  <style>
+    body { 
+      margin: 0; 
+      overflow: hidden;
+      background: #333;
+    }
+    #gameCanvas {
+      display: block;
+      margin: 0 auto;
+      background: #222;
+      border: 2px solid #555;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Player (Gun) settings
+    const gun = {
+      x: canvas.width / 2,
+      y: canvas.height - 50,
+      width: 40,
+      height: 40,
+      color: '#00ff00'
+    };
+
+    // Bullets
+    const bullets = [];
+    const bulletSpeed = 7;
+
+    // Targets
+    const targets = [];
+    const targetRadius = 20;
+    const targetSpeed = 1;
+
+    let score = 0;
+
+    // Create some targets
+    function spawnTarget() {
+      const x = Math.random() * (canvas.width - 2 * targetRadius) + targetRadius;
+      const y = -targetRadius;
+      targets.push({ x, y });
+    }
+
+    // Game loop
+    function update() {
+      // Move targets
+      targets.forEach(t => {
+        t.y += targetSpeed;
+      });
+
+      // Move bullets
+      bullets.forEach(b => {
+        b.y -= bulletSpeed;
+      });
+
+      // Collision detection: bullets & targets
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        for (let j = targets.length - 1; j >= 0; j--) {
+          const b = bullets[i];
+          const t = targets[j];
+          const dx = b.x - t.x;
+          const dy = b.y - t.y;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist < t.radius + b.radius) {
+            // hit
+            bullets.splice(i,1);
+            targets.splice(j,1);
+            score += 1;
+            break;
+          }
+        }
+      }
+
+      // Remove off-screen bullets
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        if (bullets[i].y < 0) bullets.splice(i,1);
+      }
+
+      // Remove targets that go off bottom
+      for (let i = targets.length - 1; i >= 0; i--) {
+        if (targets[i].y > canvas.height) {
+          targets.splice(i,1);
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0,0,canvas.width, canvas.height);
+
+      // draw gun
+      ctx.fillStyle = gun.color;
+      ctx.fillRect(gun.x - gun.width/2, gun.y - gun.height/2, gun.width, gun.height);
+
+      // draw bullets
+      ctx.fillStyle = '#ffff00';
+      bullets.forEach(b => {
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2);
+        ctx.fill();
+      });
+
+      // draw targets
+      ctx.fillStyle = '#ff0000';
+      targets.forEach(t => {
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, t.radius, 0, Math.PI*2);
+        ctx.fill();
+      });
+
+      // draw score
+      ctx.fillStyle = '#fff';
+      ctx.font = '20px Arial';
+      ctx.fillText("Score: " + score, 10, 25);
+    }
+
+    function gameLoop() {
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Shooting on click
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      // Bullet starts from gun position
+      bullets.push({
+        x: gun.x,
+        y: gun.y - gun.height/2,
+        radius: 5
+      });
+    });
+
+    // Move gun with mouse
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      gun.x = mouseX;
+    });
+
+    // Periodically spawn targets
+    setInterval(spawnTarget, 2000);
+
+    // Start
+    gameLoop();
+  </script>
+</body>
+</html>
