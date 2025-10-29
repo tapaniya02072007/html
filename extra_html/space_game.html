@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Space Shooter Game</title>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background: black;
+    overflow: hidden;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  canvas {
+    background: radial-gradient(circle at center, #050505 0%, #000 100%);
+    display: block;
+    margin: 0 auto;
+    border: 2px solid #0ff;
+  }
+  #info {
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+<h1>🚀 Space Shooter</h1>
+<canvas id="gameCanvas" width="400" height="600"></canvas>
+<div id="info">
+  <p>Use ⬅️ ➡️ to move | Space 🔫 to shoot</p>
+  <p id="score">Score: 0</p>
+</div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+let spaceship = { x: canvas.width / 2 - 20, y: canvas.height - 60, width: 40, height: 40 };
+let bullets = [];
+let enemies = [];
+let score = 0;
+let rightPressed = false;
+let leftPressed = false;
+let spacePressed = false;
+
+// Controls
+document.addEventListener("keydown", (e) => {
+  if (e.code === "ArrowRight") rightPressed = true;
+  if (e.code === "ArrowLeft") leftPressed = true;
+  if (e.code === "Space") spacePressed = true;
+});
+document.addEventListener("keyup", (e) => {
+  if (e.code === "ArrowRight") rightPressed = false;
+  if (e.code === "ArrowLeft") leftPressed = false;
+  if (e.code === "Space") spacePressed = false;
+});
+
+function drawSpaceship() {
+  ctx.fillStyle = "#0ff";
+  ctx.beginPath();
+  ctx.moveTo(spaceship.x, spaceship.y + spaceship.height);
+  ctx.lineTo(spaceship.x + spaceship.width / 2, spaceship.y);
+  ctx.lineTo(spaceship.x + spaceship.width, spaceship.y + spaceship.height);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawBullets() {
+  ctx.fillStyle = "#ff0";
+  bullets.forEach((b) => ctx.fillRect(b.x, b.y, b.width, b.height));
+}
+
+function drawEnemies() {
+  ctx.fillStyle = "red";
+  enemies.forEach((en) => ctx.fillRect(en.x, en.y, en.width, en.height));
+}
+
+function update() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Move spaceship
+  if (rightPressed && spaceship.x + spaceship.width < canvas.width) spaceship.x += 5;
+  if (leftPressed && spaceship.x > 0) spaceship.x -= 5;
+
+  // Shoot bullet
+  if (spacePressed) {
+    if (bullets.length === 0 || Date.now() - bullets[bullets.length - 1].time > 400) {
+      bullets.push({ x: spaceship.x + spaceship.width / 2 - 2, y: spaceship.y, width: 4, height: 10, time: Date.now() });
+    }
+  }
+
+  // Move bullets
+  bullets.forEach((b) => (b.y -= 7));
+  bullets = bullets.filter((b) => b.y > 0);
+
+  // Spawn enemies
+  if (Math.random() < 0.02) {
+    enemies.push({ x: Math.random() * (canvas.width - 40), y: -40, width: 40, height: 40 });
+  }
+
+  // Move enemies
+  enemies.forEach((en) => (en.y += 2));
+
+  // Collision detection
+  bullets.forEach((b, bi) => {
+    enemies.forEach((en, ei) => {
+      if (
+        b.x < en.x + en.width &&
+        b.x + b.width > en.x &&
+        b.y < en.y + en.height &&
+        b.y + b.height > en.y
+      ) {
+        enemies.splice(ei, 1);
+        bullets.splice(bi, 1);
+        score += 10;
+        document.getElementById("score").textContent = "Score: " + score;
+      }
+    });
+  });
+
+  // Game Over if enemy hits player
+  for (let en of enemies) {
+    if (
+      en.x < spaceship.x + spaceship.width &&
+      en.x + en.width > spaceship.x &&
+      en.y + en.height > spaceship.y
+    ) {
+      alert("💥 Game Over! Final Score: " + score);
+      document.location.reload();
+    }
+  }
+
+  // Remove off-screen enemies
+  enemies = enemies.filter((en) => en.y < canvas.height);
+
+  drawSpaceship();
+  drawBullets();
+  drawEnemies();
+
+  requestAnimationFrame(update);
+}
+
+update();
+</script>
+</body>
+</html>
